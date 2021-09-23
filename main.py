@@ -1,14 +1,35 @@
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from cryptography.fernet import Fernet
 
 app = FastAPI()
 
+urlMappings = {}
 
-@app.get('/')
-def read_root():
-    return {'Hello': 'World'}
+key = Fernet.generate_key()
+fernet = Fernet(key)
+
+templates = Jinja2Templates(directory="templates")
+
+@app.get('/', response_class=HTMLResponse)
+async def render(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.post('/shortener')
+def read_url(long_url: str = Form(...)):
+    print(long_url)
+    # return url
+    return {'long_url': long_url, 'encrypted': getShortUrl(long_url), 
+    'decrypted': fernet.decrypt(urlMappings[long_url]).decode()}
+
+def getShortUrl(long_url):
+    if (not(long_url in urlMappings)):
+        urlMappings[long_url] = convertLongtoShortUrl(long_url)
+    return urlMappings[long_url]
+
+def convertLongtoShortUrl(long_url):
+    return fernet.encrypt(long_url.encode())
 
 
-@app.get('/item/{item_id}')
-def read_item(item_id: int, q: Optional[str] = None):
-    return {'item_id': item_id, "q": q}

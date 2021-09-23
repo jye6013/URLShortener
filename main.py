@@ -29,9 +29,10 @@ def read_url(long_url: str = Form(...)):
     'decrypted': fernet.decrypt(urlMappings[long_url]).decode()}
 
 def getShortUrl(long_url):
-    if (not(long_url in urlMappings)):
+    if long_url not in urlMappings:
+        short_url = "asianpower.com/" + str(convertLongtoShortUrl(long_url))[-7:]
         urlMappings[long_url] = convertLongtoShortUrl(long_url)
-    return urlMappings[long_url]
+    return short_url   
 
 def convertLongtoShortUrl(long_url):
     return fernet.encrypt(long_url.encode())

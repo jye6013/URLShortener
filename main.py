@@ -9,7 +9,7 @@ from cryptography.fernet import Fernet
 
 app = FastAPI()
 
-longtoShortMappings = {}
+longToShortMappings = {}
 shortTolongMappings = {}
 
 key = Fernet.generate_key()
@@ -29,7 +29,7 @@ def read_url(url: str = Form(...)):
     url = url.replace("http://","")
     url = url.replace("www.","")
     return {'long_url': url, 'short_url': getShortUrl(url),
-        'mappings': longtoShortMappings}
+        'mappings': longToShortMappings}
 
 @app.post('/redirect')
 async def redirect_fastapi(url2: str = Form(...), q: Optional[str] = None):
@@ -43,11 +43,11 @@ def shortUrlExists(short_url):
     return short_url in shortTolongMappings.keys()
 
 def getShortUrl(long_url):
-    if long_url not in longtoShortMappings:
+    if long_url not in longToShortMappings:
         short_url = "asianpower.com/" + str(convertLongtoShortUrl(long_url))[-7:]
-        longtoShortMappings[long_url] = short_url
+        longToShortMappings[long_url] = short_url
         shortTolongMappings[short_url] = long_url
-    return longtoShortMappings[long_url]   
+    return longToShortMappings[long_url]   
 
 def convertLongtoShortUrl(long_url):
     return fernet.encrypt(long_url.encode())

@@ -15,9 +15,6 @@ shortTolongMappings = {}
 key = Fernet.generate_key()
 fernet = Fernet(key)
 
-key = Fernet.generate_key()
-fernet = Fernet(key)
-
 templates = Jinja2Templates(directory="templates")
 
 @app.get('/', response_class=HTMLResponse)
@@ -27,6 +24,9 @@ async def render(request: Request):
 @app.post('/shortener')
 def read_url(url: str = Form(...)):
     url = url.replace("https://www.","")
+    url = url.replace("http://www.","")
+    url = url.replace("https://","")
+    url = url.replace("http://","")
     url = url.replace("www.","")
     return {'long_url': url, 'encrypted': getShortUrl(url),
         'mappings': urlMappings}
@@ -36,7 +36,7 @@ async def redirect_fastapi(url2: str = Form(...), q: Optional[str] = None):
     if (shortUrlExists(url2)):
         long_url = shortTolongMappings[url2]
         if "https" not in long_url:
-            long_url = "https://" + long_url +"/"
+            long_url = "https://" + long_url + "/"
         return RedirectResponse(long_url)
     
 

@@ -26,7 +26,7 @@ def read_url(url: str = Form(...)):
 
     # short url    
     if (shortUrlExists(url)):
-        print("short url exists")
+        print(getLongUrl(url))
     else:
         return {'long_url': url, 'encrypted': getShortUrl(url),
          'mappings': urlMappings}
@@ -34,7 +34,7 @@ def read_url(url: str = Form(...)):
 
 
 def getLongUrl(short_url):
-    for key, value in urlMappings.iteritems():
+    for key, value in urlMappings.items():
         if value == short_url:
             return key
 

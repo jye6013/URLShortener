@@ -36,7 +36,7 @@ async def redirect_fastapi(url2: str = Form(...), q: Optional[str] = None):
     if (shortUrlExists(url2)):
         long_url = shortTolongMappings[url2]
         if "https" not in long_url:
-            long_url = "https://" + long_url + "/"
+            long_url = "https://www." + long_url + "/"
         return RedirectResponse(long_url)
     
 

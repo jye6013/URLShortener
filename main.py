@@ -9,7 +9,7 @@ from cryptography.fernet import Fernet
 
 app = FastAPI()
 
-urlMappings = {}
+longtoShortMappings = {}
 shortTolongMappings = {}
 
 key = Fernet.generate_key()
@@ -28,8 +28,8 @@ def read_url(url: str = Form(...)):
     url = url.replace("https://","")
     url = url.replace("http://","")
     url = url.replace("www.","")
-    return {'long_url': url, 'encrypted': getShortUrl(url),
-        'mappings': urlMappings}
+    return {'long_url': url, 'short_url': getShortUrl(url),
+        'mappings': longtoShortMappings}
 
 @app.post('/redirect')
 async def redirect_fastapi(url2: str = Form(...), q: Optional[str] = None):
@@ -39,21 +39,15 @@ async def redirect_fastapi(url2: str = Form(...), q: Optional[str] = None):
             long_url = "https://www." + long_url + "/"
         return RedirectResponse(long_url)
     
-
-def getLongUrl(short_url):
-    if short_url in shortTolongMappings:
-        return shortTolongMappings[short_url]
-    return None
-
 def shortUrlExists(short_url):
     return short_url in shortTolongMappings.keys()
 
 def getShortUrl(long_url):
-    if long_url not in urlMappings:
+    if long_url not in longtoShortMappings:
         short_url = "asianpower.com/" + str(convertLongtoShortUrl(long_url))[-7:]
-        urlMappings[long_url] = short_url
+        longtoShortMappings[long_url] = short_url
         shortTolongMappings[short_url] = long_url
-    return urlMappings[long_url]   
+    return longtoShortMappings[long_url]   
 
 def convertLongtoShortUrl(long_url):
     return fernet.encrypt(long_url.encode())

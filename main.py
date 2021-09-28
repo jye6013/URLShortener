@@ -3,7 +3,8 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
-import re
+import json2table
+from IPython.core.display import display, HTML
 
 from cryptography.fernet import Fernet
 
@@ -28,8 +29,7 @@ def read_url(url: str = Form(...)):
     url = url.replace("https://","")
     url = url.replace("http://","")
     url = url.replace("www.","")
-    return {'long_url': url, 'short_url': getShortUrl(url),
-        'mappings': longToShortMappings}
+    return {'long_url': url, 'short_url': getShortUrl(url)}
 
 @app.post('/redirect')
 async def redirect_fastapi(url2: str = Form(...), q: Optional[str] = None):
@@ -51,4 +51,19 @@ def getShortUrl(long_url):
 
 def convertLongtoShortUrl(long_url):
     return fernet.encrypt(long_url.encode())
+
+@app.get('/json')
+async def display_():
+    return {'mappings': longToShortMappings}
+
+@app.get('/html', response_class=HTMLResponse)
+async def display_html():
+    infoFromJson = longToShortMappings
+    build_direction = "LEFT_TO_RIGHT"
+    table_attributes = {"style": "width:100%"}
+    return json2table.convert(infoFromJson, 
+                         build_direction=build_direction, 
+                         table_attributes=table_attributes)
+
+
 
